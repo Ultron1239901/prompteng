@@ -1,45 +1,33 @@
-# PromptLab AI — Prompt Engineering Study Tool
+# PromptLab AI
 
-Full-stack app to **generate**, **compare**, **score**, and **optimize** prompt variants with an automated evaluation pipeline (parallel completions, rubric scoring, bias scan, consistency audit, winner narrative, and rewrite suggestion). All LLM calls go through **[OpenRouter](https://openrouter.ai/)** (OpenAI-compatible API, any routed model). Dark, motion-rich UI; SQLite storage with a normalized schema that can grow into Postgres.
+Full-stack prompt experimentation app with a React/Vite frontend and a FastAPI backend. The app generates prompt variants, scores them across multiple criteria, compares consistency, flags bias concerns, and stores results for later review.
 
-## How the project works (end-to-end)
+## Stack
 
-1. **You define prompts** in the Lab: one **base** prompt plus **1–5 full alternative prompts** (each variation is a complete instruction, not a fragment).
-2. **Backend creates an experiment** in SQLite (`experiments` + `variations` rows).
-3. **Generation (parallel)** — For each variation, the app calls OpenRouter’s chat completion API with that prompt and collects answers concurrently.
-4. **Scoring (parallel per answer)** — For each answer, a second model call returns JSON scores (clarity, relevance, depth, creativity 0–10) plus short reasoning; a separate call flags **bias** risks.
-5. **Weighted total** — Your UI weights are normalized and combined with those four scores to rank variants; the highest total is the **winner** (strength meter ≈ that score scaled to 0–100%).
-6. **Consistency check** — One more call sees all answers together and reports alignment, contradictions, and shared themes.
-7. **Winner story + optimization** — The API explains why the winner won and proposes a tightened **improved** version of the winning prompt.
-8. **Persistence & UI** — Results are saved (`variation_results`); History and detail views reload from the DB; you can export **JSON** or **PDF**.
+- Frontend: React, Vite, Tailwind, Framer Motion, Recharts
+- Backend: FastAPI, SQLAlchemy, OpenRouter
+- Local database: SQLite
+- Production database: Postgres via `POSTGRES_URL`
+- Deployment: Vercel for both frontend and backend
 
-```mermaid
-flowchart LR
-  UI[React Lab] -->|POST /api/experiments/run| API[FastAPI]
-  API --> DB[(SQLite)]
-  API --> OR[OpenRouter API]
-  OR --> API
+## Repo layout
+
+```text
+.
+|- backend/
+|  |- app/
+|  |- index.py
+|  |- requirements.txt
+|  `- vercel.json
+|- frontend/
+|  |- src/
+|  `- vercel.json
+`- README.md
 ```
 
-## Repository layout
+## Local development
 
-```
-prompt-engineering/
-├── backend/          # FastAPI + SQLAlchemy + OpenRouter
-├── frontend/         # React + Vite + Tailwind + Framer Motion + Recharts
-├── render.yaml
-└── README.md
-```
-
-## Prerequisites
-
-- Python **3.10+** (3.11+ recommended)
-- Node **18+**
-- **[OpenRouter](https://openrouter.ai/)** API key (`OPENROUTER_API_KEY`)
-
-## Run locally
-
-### 1. Backend
+### Backend
 
 ```powershell
 cd backend
@@ -47,26 +35,12 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 copy .env.example .env
-# Edit .env: set OPENROUTER_API_KEY (and optional DEFAULT_MODEL)
-```
-
-**Recommended on Windows** (avoids `WinError 10013` on `0.0.0.0:8000` — reserved/blocked ports or policy):
-
-```powershell
 .\run_dev.ps1
 ```
 
-Or manually:
+Backend runs on `http://127.0.0.1:8010`.
 
-```powershell
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8010
-```
-
-The Vite dev server proxies `/api` to **`http://127.0.0.1:8010`** by default (`vite.config.ts`). If you use another port, set `VITE_API_PROXY` in `frontend/.env`.
-
-API: `http://127.0.0.1:8010` · OpenAPI: `http://127.0.0.1:8010/docs`
-
-### 2. Frontend
+### Frontend
 
 ```powershell
 cd frontend
@@ -74,58 +48,61 @@ npm install
 npm run dev
 ```
 
-App: `http://127.0.0.1:5173`
-
-Development uses the Vite dev server **proxy**: requests to `/api` forward to the backend (see `vite.config.ts`, `VITE_API_PROXY`).
-
-### 3. Production build (frontend)
-
-```powershell
-cd frontend
-npm run build
-npm run preview
-```
+Frontend runs on `http://127.0.0.1:5173`.
 
 ## Environment variables
 
-| Variable | Where | Purpose |
-|----------|--------|---------|
-| `OPENROUTER_API_KEY` | Backend | Bearer token for OpenRouter |
-| `OPENROUTER_BASE_URL` | Backend | Default `https://openrouter.ai/api/v1` |
-| `DEFAULT_MODEL` | Backend | Default slug if UI leaves model blank |
-| `OPENROUTER_HTTP_REFERER` | Backend | Optional; OpenRouter rankings |
-| `OPENROUTER_APP_TITLE` | Backend | Optional; shown in OpenRouter dashboard |
-| `DATABASE_URL` | Backend | Default `sqlite:///./promptlab.db` |
-| `CORS_ORIGINS` | Backend | Comma-separated allowed origins |
-| `VITE_API_URL` | Frontend build | Public API URL (empty = same-origin / proxy) |
+### Backend
 
-## Deploy
+- `OPENROUTER_API_KEY`
+- `DEFAULT_MODEL`
+- `OPENROUTER_BASE_URL`
+- `OPENROUTER_HTTP_REFERER`
+- `OPENROUTER_APP_TITLE`
+- `DATABASE_URL` for local SQLite
+- `POSTGRES_URL` for deployed Postgres
+- `CORS_ORIGINS`
 
-### Backend (Render)
+### Frontend
 
-1. New **Web Service**, root directory `backend`.
-2. Build: `pip install -r requirements.txt`
-3. Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-4. Set `OPENROUTER_API_KEY`, `CORS_ORIGINS` (include your frontend domain).
+- `VITE_API_URL` for the deployed backend URL
+- `VITE_API_PROXY` for local proxy overrides
 
-See `render.yaml` as a starting point.
+## Vercel deployment
 
-**Note:** Render’s filesystem is ephemeral. SQLite works for demos; for durable history use a managed database and point `DATABASE_URL` at Postgres.
+Deploy this repository as two separate Vercel projects.
 
-### Frontend (Vercel)
+### 1. Backend project
 
-1. Import the `frontend` folder as a Vite project.
-2. Build: `npm run build`, output: `dist`
-3. Set `VITE_API_URL` to your API origin (no trailing slash).
+- Import the repo into Vercel
+- Set the root directory to `backend`
+- Vercel uses `backend/index.py` as the Python entrypoint
+- Add environment variables:
+  - `OPENROUTER_API_KEY`
+  - `POSTGRES_URL`
+  - `CORS_ORIGINS=https://your-frontend-project.vercel.app,http://localhost:5173`
+  - Optional: `DEFAULT_MODEL=openai/gpt-4o-mini`
+  - Optional: `OPENROUTER_HTTP_REFERER=https://your-frontend-project.vercel.app`
+  - Optional: `OPENROUTER_APP_TITLE=PromptLab AI`
 
-## API overview
+### 2. Frontend project
 
-- `POST /api/experiments/run` — base prompt, variations, weights, OpenRouter model slug; runs full pipeline.
-- `GET /api/experiments` — recent experiments.
-- `GET /api/experiments/{id}` — full detail.
-- `DELETE /api/experiments/{id}` — remove a record.
-- `GET /api/health` — health check.
+- Import the same repo into Vercel again
+- Set the root directory to `frontend`
+- Framework preset: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Add environment variable:
+  - `VITE_API_URL=https://your-backend-project.vercel.app`
 
-## License
+## Production database note
 
-Use and modify for your own learning and projects.
+Do not use SQLite for deployed history on Vercel. Vercel's filesystem is ephemeral. Use Vercel Postgres, Neon, Supabase, or another hosted Postgres instance and expose it through `POSTGRES_URL`.
+
+## API routes
+
+- `POST /api/experiments/run`
+- `GET /api/experiments`
+- `GET /api/experiments/{id}`
+- `DELETE /api/experiments/{id}`
+- `GET /api/health`

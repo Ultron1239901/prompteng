@@ -14,11 +14,16 @@ class Settings(BaseSettings):
 
     default_model: str = "openai/gpt-4o-mini"
     database_url: str = "sqlite:///./promptlab.db"
+    postgres_url: str = ""
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def resolved_database_url(self) -> str:
+        return self.postgres_url.strip() or self.database_url
 
 
 @lru_cache
