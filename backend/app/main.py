@@ -21,26 +21,32 @@ async def lifespan(_: FastAPI):
     yield
 
 
-settings = get_settings()
+def create_app(*, api_prefix: str = "/api") -> FastAPI:
+    settings = get_settings()
 
-app = FastAPI(
-    title="PromptLab AI API",
-    description="Backend for PromptLab — prompt engineering study tool",
-    version="1.0.0",
-    lifespan=lifespan,
-)
+    app = FastAPI(
+        title="PromptLab AI API",
+        description="Backend for PromptLab AI prompt engineering study tool",
+        version="1.0.0",
+        lifespan=lifespan,
+    )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origin_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origin_list,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
-app.include_router(api_router, prefix="/api")
+    app.include_router(api_router, prefix=api_prefix)
+
+    @app.get("/")
+    def root() -> dict[str, str]:
+        docs_path = "/docs" if not api_prefix else f"{api_prefix}/docs"
+        return {"name": "PromptLab AI API", "docs": docs_path}
+
+    return app
 
 
-@app.get("/")
-def root() -> dict[str, str]:
-    return {"name": "PromptLab AI API", "docs": "/docs"}
+app = create_app()
