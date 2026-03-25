@@ -16,7 +16,7 @@ Full-stack prompt experimentation app with a React/Vite frontend and a FastAPI b
 .
 |- backend/
 |  |- app/
-|  |- api/index.py
+|  |- index.py
 |  |- requirements.txt
 |  `- vercel.json
 |- frontend/
@@ -76,7 +76,7 @@ Deploy this repository as two separate Vercel projects.
 
 - Import the repo into Vercel
 - Set the root directory to `backend`
-- Vercel uses `backend/api/index.py` as the Python entrypoint
+- Vercel uses `backend/index.py` as the Python entrypoint
 - Add environment variables:
   - `OPENROUTER_API_KEY`
   - `POSTGRES_URL`
