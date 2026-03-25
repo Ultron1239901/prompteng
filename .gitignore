@@ -1,0 +1,10 @@
+backend/.venv/
+backend/venv/
+backend/promptlab.db
+backend/.env
+frontend/node_modules/
+frontend/dist/
+*.log
+*.pyc
+__pycache__/
+.DS_Store

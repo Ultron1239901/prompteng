@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --lab-ink-strong: #182535;
+  --lab-ink: #243548;
+  --lab-ink-soft: #415468;
+  --lab-placeholder: #6f8194;
+  --lab-field-bg: #fffaf4;
+  --lab-field-border: #d7c6b2;
+  --lab-focus: rgba(217, 119, 69, 0.22);
+  --lab-muted-strong: #6b4f39;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--lab-ink-strong);
+  background-color: #f2e8dc;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(circle at top left, rgba(217, 119, 69, 0.16), transparent 28%),
+    radial-gradient(circle at top right, rgba(50, 103, 137, 0.1), transparent 24%),
+    linear-gradient(180deg, #fdf8f1 0%, #f2e8dc 56%, #e6d6c3 100%);
+}
+
+p,
+label,
+span,
+li,
+dd,
+dt {
+  color: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+input,
+textarea,
+select,
+button {
+  font: inherit;
+}
+
+input,
+textarea,
+select {
+  color: var(--lab-ink-strong);
+  caret-color: var(--lab-ink-strong);
+}
+
+.lab-input {
+  background: #fffaf4 !important;
+  color: #182535 !important;
+  -webkit-text-fill-color: #182535 !important;
+  caret-color: #182535 !important;
+}
+
+.lab-input::placeholder {
+  color: #6f8194 !important;
+  opacity: 1;
+}
+
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: var(--lab-placeholder);
+  opacity: 1;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  box-shadow: 0 0 0 4px var(--lab-focus);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--lab-ink-strong);
+  box-shadow: 0 0 0 1000px var(--lab-field-bg) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+::selection {
+  background: rgba(217, 119, 69, 0.22);
+  color: #1f2937;
+}
+
+.glass-panel {
+  background: rgba(255, 251, 246, 0.92);
+  backdrop-filter: blur(16px);
+}
+
+.soft-ring {
+  box-shadow:
+    0 0 0 1px rgba(217, 200, 178, 0.98),
+    0 24px 70px -34px rgba(69, 46, 26, 0.22);
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(80, 55, 31, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(80, 55, 31, 0.08) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.mesh-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+  opacity: 0.65;
+}
+
+.mesh-orb--warm {
+  background: rgba(244, 175, 118, 0.42);
+}
+
+.mesh-orb--cool {
+  background: rgba(126, 170, 196, 0.32);
+}
