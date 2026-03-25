@@ -34,15 +34,22 @@ async def run_experiment(
     for i, v in enumerate(body.variations):
         variation_inputs.append((v.label.strip() or f"Variation {i + 1}", v.prompt_text.strip()))
 
-    ex = build_experiment_record(
-        db,
-        title=body.title,
-        base_prompt=body.base_prompt.strip(),
-        variation_inputs=variation_inputs,
-        weights=body.weights,
-        provider=provider,
-        model_name=model,
-    )
+    try:
+        ex = build_experiment_record(
+            db,
+            title=body.title,
+            base_prompt=body.base_prompt.strip(),
+            variation_inputs=variation_inputs,
+            weights=body.weights,
+            provider=provider,
+            model_name=model,
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.exception("Database write failed while creating experiment")
+        raise HTTPException(
+            status_code=502,
+            detail=f"Database write failed: {e}",
+        ) from e
 
     db.expire_all()
     ex_loaded = (
